@@ -25,7 +25,7 @@ class FSMGolfBehaviour(FSMBehaviour):
 class StartState(State):
     async def run(self):
         print("Välkommen till Mads Golf! \n Är du redo att spela?")
-        choice = input("ja/nej").strip().lower()
+        choice = input("ja/nej\n>").strip().lower()
         if choice == "ja":
             print("Härligt, då kör vi!")
             self.set_next_state(STATE_TEE)
@@ -40,7 +40,7 @@ class TeeState(State):
     async def run(self):
         print("Dags för ditt första slag! \n Välj klubba:\n " \
         "1. Driver \n 2. Järn-7 \n 3. Putter")
-        choice = input("Ange klubba: 1/2/3").strip()
+        choice = input("Ange klubba: 1/2/3\n>").strip()
         if choice == "1":
             print("Bra val! Du tog dig till Fairway med bara 50 meter kvar till green!")
             self.agent.counter += 1
@@ -61,7 +61,7 @@ class Fairway1State(State):
     async def run(self):
         print("Du har 200 meter kvar till green, vilken klubba väljer du? \n" \
         "1. Järn 5 \n 2. Järn 7 \n 3. Putter")
-        choice = input("Ange klubba: 1/2/3").strip()
+        choice = input("Ange klubba: 1/2/3\n>").strip()
         if choice == "1":
             print("Bra val! Du tog dig nära green, men tyvärr landade du i en bunker..")
             self.agent.counter += 1
@@ -82,7 +82,7 @@ class Fairway2State(State):
     async def run(self):
         print("Du har bara 50 meter kvar till green! Vilken klubba väljer du? \n" \
         "1. Järn 5 \n 2. Putter \n 3. Pitch \n 4. Sand wedge")
-        choice = input("Ange klubba: 1/2/3/4").strip()
+        choice = input("Ange klubba: 1/2/3/4\n>").strip()
         if choice == "1":
             print("Ajdå! Du slog alldeles för långt och hamnade i roughen..")
             self.agent.counter += 1
@@ -109,7 +109,7 @@ class RoughState(State):
         "Du vill spela fram dig och landa på fairway nära green. Du har 120m kvar till flagg.\n" \
         "Vilken klubba väljer du?\n" \
         "1. Järn 7 \n 2. Pitch \n 3. Putter")
-        choice = input("Ange klubba: 1/2/3").strip()
+        choice = input("Ange klubba: 1/2/3\n>").strip()
         if choice == "1":
             print("Bra val! Men du slog lite långt och hamnade i bunkern.")
             self.agent.counter += 1
@@ -117,7 +117,7 @@ class RoughState(State):
         elif choice == "2":
             print("Snyggt! Du slog fram dig bra och landade på fairway med bara 50 meter kvar till green.")
             self.agent.counter += 1
-            self.set_next_state(STATE_FAIRWAY_1)
+            self.set_next_state(STATE_FAIRWAY_2)
         elif choice == "3":
             print("Tyvärr kom du ingenstans, du är kvar i roughen..")
             self.agent.counter += 1
@@ -131,7 +131,7 @@ class BunkerState(State):
         print("Du har landat i bunkern, men nära green! Gör du ett bra slag är du uppe på green. \n" \
         "Bunkern är svårspelad, vilken klubba väljer du?\n" \
         "1. Järn 7 \n 2. Sandwedge \n 3. Hybrid 3 \n 4. putter")
-        choice = input("Ange klubba: 1/2/3/4").strip()
+        choice = input("Ange klubba: 1/2/3/4\n>").strip()
         if choice == "1":
             print("Du slår i kanten och bollen rullar tillbaks ner i bunkern..")
             self.agent.counter += 1
@@ -157,7 +157,7 @@ class GreenState(State):
         print("Du är uppe på green och nära flagg! Med rätt klubba kan du sätta den..\n" \
         "Vilken klubba väljer du?\n" \
         "1. Sandwedge \n 2. Järn 7 \n 3. Putter")
-        choice = input("Välj klubba: 1/2/3").strip()
+        choice = input("Välj klubba: 1/2/3\n>").strip()
         if choice == "1":
             print("Den där kan du inte putta med... Bollen rullar ned i bunkern!")
             self.agent.counter += 1
@@ -183,7 +183,7 @@ class GreenState(State):
 
 class EndState(State):
     async def run(self):
-        choice = input("Vill du spela igen? 'ja/nej'")
+        choice = input("Vill du spela igen? 'ja/nej'\n>").strip().lower()
         if choice == "ja":
             self.set_next_state(STATE_START)
         elif choice == "nej":
@@ -215,8 +215,9 @@ class Lab1_FSM_golf_Agent(Agent):
         fsm.add_transition(source=STATE_FAIRWAY_2, dest=STATE_ROUGH)
         fsm.add_transition(source=STATE_FAIRWAY_2, dest=STATE_GREEN)
         fsm.add_transition(source=STATE_FAIRWAY_2, dest=STATE_FAIRWAY_2)
+        fsm.add_transition(source=STATE_FAIRWAY_2, dest=STATE_BUNKER)
         fsm.add_transition(source=STATE_ROUGH, dest=STATE_BUNKER)
-        fsm.add_transition(source=STATE_ROUGH, dest=STATE_FAIRWAY_1)
+        fsm.add_transition(source=STATE_ROUGH, dest=STATE_FAIRWAY_2)
         fsm.add_transition(source=STATE_ROUGH, dest=STATE_ROUGH)
         fsm.add_transition(source=STATE_BUNKER, dest=STATE_BUNKER)
         fsm.add_transition(source=STATE_BUNKER, dest=STATE_GREEN)
