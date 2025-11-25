@@ -185,6 +185,7 @@ class EndState(State):
     async def run(self):
         choice = input("Vill du spela igen? 'ja/nej'\n>").strip().lower()
         if choice == "ja":
+            self.agent.counter = 0
             self.set_next_state(STATE_START)
         elif choice == "nej":
             await self.agent.stop()
