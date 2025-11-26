@@ -155,7 +155,6 @@ class RoughState(State):
             else:
                 print("Snyggt! Du lyckades slå bollen över bunkern och landade på green nära flagg!")
                 self.set_next_state(STATE_GREEN)
-            self.set_next_state(STATE_BUNKER)
         elif choice == "2":
             print("Snyggt! Du slog fram dig bra och landade på fairway med bara 50 meter kvar till green.")
             self.agent.counter += 1
