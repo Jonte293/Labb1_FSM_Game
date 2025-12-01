@@ -1,9 +1,9 @@
 import spade
 from spade.agent import Agent
 from spade.behaviour import FSMBehaviour, State
-from spade.message import Message
 import random
 
+# Namn på de olika tillstånden i FSM:
 STATE_START = "StartState"
 STATE_TEE = "TeeState"
 STATE_FAIRWAY_1 = "Fairway1State"
@@ -14,19 +14,27 @@ STATE_GREEN = "GreenState"
 STATE_END = "EndState"
 
 
-
+# Vårt FSM-beteende för golf-spelet, hanterar start och stopp av vår finite state machine:
 class FSMGolfBehaviour(FSMBehaviour):
     async def on_start(self):
-        print("FSM Golf Behaviour starting at TEE state")
+        print("FSM Golf Beteendet startar på TeeState")
 
     async def on_end(self):
-        print("FSM Golf Behaviour ended at END state")
+        print("FSM Golf Beteendet slutade på EndState")
         await self.agent.stop()
 
+# Alla states har en liknande struktur, 
+# vi har därför valt att kommentera startstate och teestate mer utförligt, 
+# sedan endast vid större skillnader.
+
 class StartState(State):
+    #Varje state körs asynkront med run-metoden, så att agenten kan invänta svar innan den går vidare.
     async def run(self):
         print("Välkommen till Mads Golf! \n Är du redo att spela?")
+        # Vi tar emot input från användaren, som avgör nästa state. strip tar bort eventuella mellanrum
+        # och lower gör att input alltid är små bokstäver för att undvika felaktig inmatning.
         choice = input("ja/nej\n>").strip().lower()
+        # If-sats med efterföljande elif och else som sätter nästa state baserat på input.
         if choice == "ja":
             print("Härligt, då kör vi!")
             self.set_next_state(STATE_TEE)
@@ -38,11 +46,15 @@ class StartState(State):
             self.set_next_state(STATE_START)
 
 class TeeState(State):
+    # Lika struktur som föregående state, men här har vi random och counter.
     async def run(self):
         print("Dags för ditt första slag! \n Välj klubba:\n " \
         "1. Driver \n 2. Järn-7 \n 3. Putter")
         choice = input("Ange klubba: 1/2/3\n>").strip()
+        # slump tilldelas random-funktionen med ett värde mellan 0 och 1.
         slump = random.random()
+        # Vid varje choice (input från användaren) så ökar agentens counter med 1 (förutom felaktig inmatning).
+        # Baserat på choice och slumpvärdet sätts nästa state.
         if choice == "1":
             self.agent.counter += 1
             if slump < 0.8:
@@ -67,6 +79,7 @@ class TeeState(State):
             self.set_next_state(STATE_TEE)
 
 class Fairway1State(State):
+    #Samma logik som TeeState.
     async def run(self):
         print("Du har 200 meter kvar till green, vilken klubba väljer du? \n" \
         "1. Järn 5 \n 2. Järn 7 \n 3. Putter")
@@ -100,6 +113,7 @@ class Fairway1State(State):
             self.set_next_state(STATE_FAIRWAY_1)
 
 class Fairway2State(State):
+    #Samma logik som TeeState.
     async def run(self):
         print("Du har bara 50 meter kvar till green! Vilken klubba väljer du? \n" \
         "1. Järn 5 \n 2. Putter \n 3. Pitch \n 4. Sand wedge")
@@ -137,6 +151,7 @@ class Fairway2State(State):
             self.set_next_state(STATE_FAIRWAY_2)
 
 class RoughState(State):
+    #Samma logik som TeeState.
     async def run(self):
         print("Du har landat i roughen och det ser svårt ut att ta sig upp på green.\n" \
         "Du vill spela fram dig och landa på fairway nära green. Du har 120m kvar till flagg.\n" \
@@ -168,6 +183,7 @@ class RoughState(State):
             self.set_next_state(STATE_ROUGH)
 
 class BunkerState(State):
+    #Samma logik som TeeState.
     async def run(self):
         print("Du har landat i bunkern, men nära green! Gör du ett bra slag är du uppe på green. \n" \
         "Bunkern är svårspelad, vilken klubba väljer du?\n" \
@@ -199,6 +215,7 @@ class BunkerState(State):
             self.set_next_state(STATE_BUNKER)
 
 class GreenState(State):
+    #Samma logik som TeeState.
     async def run(self):
         print("Du är uppe på green och nära flagg! Med rätt klubba kan du sätta den..\n" \
         "Vilken klubba väljer du?\n" \
@@ -222,6 +239,7 @@ class GreenState(State):
             self.set_next_state(STATE_GREEN)
 
 class EndState(State):
+    # Här printas slutliga counter-värdet ut, baserat på värdet ges olika meddelanden genom if-elif.
     async def run(self):
         print(f"Grattis! Du satte den och är klar med denna runda. \n" \
             f"Du gick hålet på {self.agent.counter} slag.")
@@ -235,6 +253,9 @@ class EndState(State):
                 print("Boogey..")
         elif self.agent.counter > 5:
                 print("Ställ dig på ranchen nästa gång..")
+        # Genom input kan användaren välja att spela igen eller avsluta, vid ja så nollställer
+        # vi counter och går tillbaks till startstate, vid nej så stoppar vi agenten,
+        # felaktig inmatning kör samma state igen.
         choice = input("Vill du spela igen? 'ja/nej'\n>").strip().lower()
         if choice == "ja":
             self.agent.counter = 0
@@ -246,6 +267,8 @@ class EndState(State):
             self.set_next_state(STATE_END)
 
 class Lab1_FSM_golf_Agent(Agent):
+    # Vi sätter upp agenten med vårt FSM-beteende, lägger till states som den ska hantera med
+    # add_state och vilka möjliga övergångar som den ska hantera med add_transition.
     async def setup(self):
         self.counter = 0
         fsm = FSMGolfBehaviour()
@@ -289,10 +312,14 @@ class Lab1_FSM_golf_Agent(Agent):
         self.add_behaviour(fsm)
 
 async def main():
+    # Här skapar vi agenten och kör igång den med start-metoden, wait_until_finished gör att
+    # programmet väntar tills agenten spelat färdigt, så den inte avslutar mitt i spelet.
+    # Sedan stoppas agenten med stop-metoden.
     fsmagent = Lab1_FSM_golf_Agent("h23jjans@yax.im", "ikb123!")
     await fsmagent.start()
     await spade.wait_until_finished(fsmagent)
     await fsmagent.stop()
 
 if __name__ == "__main__":
+    # Kör main-funktionen med spade.run. Startar spelet.
     spade.run(main())
