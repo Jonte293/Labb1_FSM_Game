@@ -17,7 +17,7 @@ STATE_END = "EndState"
 # Vårt FSM-beteende för golf-spelet, hanterar start och stopp av vår finite state machine:
 class FSMGolfBehaviour(FSMBehaviour):
     async def on_start(self):
-        print("FSM Golf Beteendet startar på TeeState")
+        print("FSM Golf Beteendet startar på StartState")
 
     async def on_end(self):
         print("FSM Golf Beteendet slutade på EndState")
@@ -282,6 +282,8 @@ class Lab1_FSM_golf_Agent(Agent):
         fsm.add_state(name=STATE_END, state=EndState())
 
         fsm.add_transition(source=STATE_START, dest=STATE_TEE)
+        fsm.add_transition(source=STATE_START, dest=STATE_START)
+        fsm.add_transition(source=STATE_START, dest=STATE_END)
         fsm.add_transition(source=STATE_TEE, dest=STATE_FAIRWAY_1)
         fsm.add_transition(source=STATE_TEE, dest=STATE_FAIRWAY_2)
         fsm.add_transition(source=STATE_TEE, dest=STATE_TEE)
